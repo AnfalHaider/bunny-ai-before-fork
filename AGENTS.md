@@ -8,7 +8,7 @@ Research has not started. Do not start it in this setup.
 
 ## What this is
 
-A family of eight sessions around a harness Anfal can change. The repo is `https://github.com/AnfalHaider/bunny-ai`. The legacy IDE folder is read-only and is not the target. `https://github.com/AnfalHaider/deepseek-harness` is a separate fork and is not this project.
+A family of eight sessions around a harness Anfal can change. The repo is `https://github.com/AnfalHaider/bunny-ai`. The legacy IDE folder is read-only and is not the target. Daily commits do not go to `https://github.com/AnfalHaider/deepseek-harness`. That repo is the GitHub fork used only to update `harness`.
 
 Accepted 2026-11-09:
 
@@ -20,8 +20,22 @@ Accepted 2026-11-09:
 
 | Remote | URL | Rule |
 | --- | --- | --- |
-| `origin` | `https://github.com/AnfalHaider/bunny-ai` | Push `Dev` for daily work. Promote to `main` only as a fast-forward or merge from `Dev`. Never force-push. |
-| `upstream` | `https://github.com/deepseek-ai/deepseek-harness` | Fetch only. Push URL is disabled. Merge into `harness`, then merge `harness` into `Dev`. |
+| `origin` | `https://github.com/AnfalHaider/bunny-ai` | Push `Dev` for daily work. Promote to `main` only as a fast-forward or merge from `Dev`. Never force-push `main` or `Dev`. |
+| GitHub fork | `https://github.com/AnfalHaider/deepseek-harness` | Parent is `deepseek-ai/deepseek-harness`. This is how `harness` is updated. No local upstream remote is required. |
+
+## Updating `harness`
+
+GitHub will not add a parent to `bunny-ai` after creation. Setting `parent` left `fork: false` and `parent: null`.
+
+`https://github.com/AnfalHaider/deepseek-harness` is a real fork of `https://github.com/deepseek-ai/deepseek-harness`. Its default branch is `master`. `bunny-ai`'s `harness` branch points at that same commit and stays free of family files.
+
+From a clone of `bunny-ai`, this updates `harness` from upstream. It does not use a local upstream remote and it does not use a local deepseek-harness checkout:
+
+```
+cmd /c "gh repo sync AnfalHaider/deepseek-harness && git fetch https://github.com/AnfalHaider/deepseek-harness.git master:harness && git push origin refs/heads/harness:refs/heads/harness"
+```
+
+`gh repo sync` fast-forwards the fork from its parent. The fetch maps the fork's `master` onto local `harness`. The push moves only `bunny-ai`'s `harness`. Do not add `--force`. Merge `harness` into `Dev` when daily work should take the update. `main` changes only when `Dev` is promoted.
 
 ## Operating rules
 
@@ -95,8 +109,8 @@ Anfal confirmed this layout. These are binding.
 | --- | --- |
 | Branches | `harness` tracks upstream only. `Dev` is daily work. `main` is stable and moves only by promoting `Dev`. |
 | Repo | Family files are committed on `Dev` in `AnfalHaider/bunny-ai`. |
-| Upstream | `https://github.com/deepseek-ai/deepseek-harness` is fetch-only. |
-| Not this project | `https://github.com/AnfalHaider/deepseek-harness`, the legacy IDE tree, and taskmasterx. |
+| Upstream | `deepseek-ai/deepseek-harness` is the parent of `AnfalHaider/deepseek-harness`. Update `harness` with the command in "Updating harness". |
+| Not daily work | Do not commit project work on `AnfalHaider/deepseek-harness`. Do not touch the legacy IDE tree or taskmasterx. |
 | Secrets | Do not commit secrets. `DEEPSEEK_API_KEY` stays unset. |
 | Gate | `.agents/skills/dsh-pre-push-checks` plus the tests for the surface being changed. |
 | pnpm | Do not reinstall. The harness pins `pnpm@11.28.5`. |
